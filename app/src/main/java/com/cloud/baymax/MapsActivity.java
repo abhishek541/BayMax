@@ -69,10 +69,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //replacing spaces with +
         if(destination!=null) {
-            destination.replace(' ', '+');
+            destination = destination.replace(' ', '+');
+            Log.d("MapsActivityLog","destination received = "+destination);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
         // Initializing
@@ -82,6 +83,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //stop location updates
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
     }
 
     /**
@@ -98,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         //Initialize Google Play Services
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -247,7 +257,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 // Fetching the data from web service
                 data = downloadUrl(url[0]);
-                Log.d("Background Task data", data.toString());
+                Log.d("MapsActivityLog", "Data fetched from google api = "+data);
             } catch (Exception e) {
                 Log.d("Background Task", e.toString());
             }
@@ -387,8 +397,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onConnected(Bundle bundle) {
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(10000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -412,40 +422,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         //Place current location marker
-        /*if(isStartPositionSet == false) {
-            isStartPositionSet =true;
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-            markerOptions.title("Current Position");
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-            mCurrLocationMarker = mMap.addMarker(markerOptions);
-
-            //move map camera
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-        }else{
-            Log.d("Distance", "Entered OnLocationChanged Else Part");
-            LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
-            *//*LatLng dest;
-            if(MarkerPoints.size() >= 2) {
-                dest = MarkerPoints.get(1);
-            }
-            else {
-                dest = origin;
-            }*//*
-
-
-            // Getting URL to the Google Directions API
-            String url = getUrl(origin, "Times Square");
-            Log.d("onMapClick", url.toString());
-            FetchUrl FetchUrl = new FetchUrl();
-
-            // Start downloading json data from Google Directions API
-            FetchUrl.execute(url);
-        }*/
-
-        //Place current location marker
         LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(origin);
@@ -458,17 +434,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
 
         // Getting URL to the Google Directions API
-        String url = getUrl(origin, "Times+Square");
+        String url = getUrl(origin, destination);
+        //String url = "https://watson-api-explorer.mybluemix.net/natural-language-understanding/api/v1/analyze?version=2017-02-27&text=Give%20me%20directions%20to%20Dekalb%20Avenue&features=keywords&return_analyzed_text=false&clean=true&fallback_to_raw=true&concepts.limit=8&emotion.document=true&entities.limit=50&entities.emotion=false&entities.sentiment=false&keywords.limit=50&keywords.emotion=false&keywords.sentiment=false&relations.model=en-news&semantic_roles.limit=50&semantic_roles.entities=false&semantic_roles.keywords=false&sentiment.document=true";
         Log.d("onMapClick", url);
         FetchUrl FetchUrl = new FetchUrl();
 
         // Start downloading json data from Google Directions API
         FetchUrl.execute(url);
 
-        //stop location updates
-        //if (mGoogleApiClient != null) {
-        //    LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        //}
+
 
     }
 
