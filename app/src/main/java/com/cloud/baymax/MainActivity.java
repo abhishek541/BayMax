@@ -579,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Map<String, Object> input = response.getInput();
             String inputText = (String) input.get("text");
 
-            if (conversationIntent.getIntent().equalsIgnoreCase("give_directions")) {
+            if (conversationIntent.getIntent().equalsIgnoreCase("give_directions") && conversationIntent.getConfidence()>0.85) {
                 String url= makeUrl(inputText);
                 Log.d("UrlMade", url);
                 FetchUrl FetchUrl = new FetchUrl(this);
