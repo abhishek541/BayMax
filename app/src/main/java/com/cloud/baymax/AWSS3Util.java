@@ -32,7 +32,7 @@ public class AWSS3Util {
     }
 
     public boolean uploadToS3Bucket(String fileName, File file){
-        PutObjectResult por = s3.putObject(new PutObjectRequest("bucket", fileName, file).withCannedAcl(CannedAccessControlList.PublicRead));
+        PutObjectResult por = s3.putObject(new PutObjectRequest(bucketName, fileName, file).withCannedAcl(CannedAccessControlList.PublicRead));
         if (por != null) {
             return true;
         } else {
