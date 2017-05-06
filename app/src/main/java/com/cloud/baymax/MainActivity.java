@@ -504,13 +504,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     {
                         context.clear();
                         context = response.getContext();
-                        Log.i("MainActivity","Context = "+context);
+                        Log.i("Conversation","Context = "+context);
 
                     }
                     Message outMessage=new Message();
                     if(response!=null)
                     {
-                        Log.i("MainActivity","Response from converation service = "+response);
+                        Log.i("Conversation","Response from converation service = "+response);
                         if(response.getOutput()!=null && response.getOutput().containsKey("text"))
                         {
 
@@ -570,14 +570,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     private void analyzeIntent(MessageResponse response){
         ArrayList intentList = (ArrayList) response.getIntents();
+        com.ibm.watson.developer_cloud.conversation.v1.model.Intent conversationIntent = null;
+        String inputText = null;
         if(intentList!=null) {
             //Extracting Intent
-            com.ibm.watson.developer_cloud.conversation.v1.model.Intent conversationIntent =
+            conversationIntent =
                     (com.ibm.watson.developer_cloud.conversation.v1.model.Intent) intentList.get(0);
 
             //Extracting InputText
             Map<String, Object> input = response.getInput();
-            String inputText = (String) input.get("text");
+            inputText = (String) input.get("text");
 
             if (conversationIntent.getIntent().equalsIgnoreCase("give_directions") && conversationIntent.getConfidence()>0.85) {
                 String url= makeUrl(inputText);
@@ -586,9 +588,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // Start downloading json data from Google Directions API
                 FetchUrl.execute(url);
+            }else if (conversationIntent.getIntent().equalsIgnoreCase("recognize_image") && conversationIntent.getConfidence()>0.6) {
+                Intent imageRecognitionIntent = new Intent(this,ImageRecognitionActivity.class);
+                //Toast.makeText(this,"Destination Extracted :"+destination,Toast.LENGTH_LONG).show();
+                //mapIntent.putExtra("DestinationName",destination);
+                startActivity(imageRecognitionIntent);
             }
 
-            Log.i("MainActivity", "Intent : " + conversationIntent.getIntent() + "InputText : " + inputText);
+
+        }
+        if(conversationIntent == null || inputText == null ){
+            Log.i("Conversation", "Intent : No intent" + "InputText : No Input Text" );
+        }else {
+            Log.i("Conversation", "Intent : " + conversationIntent.getIntent() + "InputText : " + inputText);
         }
     }
 
