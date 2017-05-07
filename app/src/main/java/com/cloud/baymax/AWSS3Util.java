@@ -1,7 +1,9 @@
 package com.cloud.baymax;
 
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
+import android.content.Context;
+
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -22,13 +24,15 @@ import java.util.List;
  */
 
 public class AWSS3Util {
+
     private final String SUFFIX = "/";
-    public static String bucketName = "";
+    public static String bucketName = "faces-for-rekognition";
 
-    AmazonS3 s3;
+    AmazonS3Client s3;
+    //TransferUtility = getTransferUtility();
 
-    public void init(String accessKey, String secretKey) {
-        s3 = new AmazonS3Client(new BasicAWSCredentials(accessKey, secretKey));
+    public void init(Context applicationContext,CognitoCachingCredentialsProvider credentialsProvider) {
+        s3 = new AmazonS3Client(credentialsProvider.getCredentials());
     }
 
     public boolean uploadToS3Bucket(String fileName, File file){

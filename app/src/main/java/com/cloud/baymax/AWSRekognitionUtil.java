@@ -12,6 +12,7 @@ import com.amazonaws.services.rekognition.model.CompareFacesResult;
 import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.services.rekognition.model.S3Object;
 
+
 import java.util.List;
 
 /**

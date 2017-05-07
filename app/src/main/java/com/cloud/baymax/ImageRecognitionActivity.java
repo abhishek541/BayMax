@@ -3,6 +3,7 @@ package com.cloud.baymax;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,7 +27,10 @@ import android.graphics.Bitmap;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.regions.Regions;
 
 
 public class ImageRecognitionActivity extends AppCompatActivity {
@@ -36,6 +40,8 @@ public class ImageRecognitionActivity extends AppCompatActivity {
     private ImageView ivImage;
     private String userChoosenTask;
     private Context context;
+    private File imageFileObject;
+    private String imageFileName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +57,11 @@ public class ImageRecognitionActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Analyzing the face...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                uploadToS3();
+                //CompareFaces compareFaces = new CompareFaces(getApplicationContext());
+
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -66,6 +75,13 @@ public class ImageRecognitionActivity extends AppCompatActivity {
         });
         ivImage = (ImageView) findViewById(R.id.ivImage);
     }
+
+    private void uploadToS3(){
+        S3Creator s3Creator = new S3Creator(getApplicationContext());
+        s3Creator.execute("createAndUpload");
+
+    }
+
     private void selectImage() {
         final CharSequence[] items = { "Take Photo", "Choose from Library",
                 "Cancel" };
@@ -122,7 +138,7 @@ public class ImageRecognitionActivity extends AppCompatActivity {
         thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
 
         File destination = new File(Environment.getExternalStorageDirectory(),
-                System.currentTimeMillis() + ".jpg");
+                imageFileName = "target.jpg");
 
         FileOutputStream fo;
         try {
@@ -130,6 +146,7 @@ public class ImageRecognitionActivity extends AppCompatActivity {
             fo = new FileOutputStream(destination);
             fo.write(bytes.toByteArray());
             fo.close();
+            imageFileObject = destination;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -151,7 +168,58 @@ public class ImageRecognitionActivity extends AppCompatActivity {
             }
         }
 
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+
+        File destination = new File(Environment.getExternalStorageDirectory(),
+                imageFileName = "target.jpg");
+
+        FileOutputStream fo;
+        try {
+            destination.createNewFile();
+            fo = new FileOutputStream(destination);
+            fo.write(bytes.toByteArray());
+            fo.close();
+            imageFileObject = destination;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         ivImage.setImageBitmap(bm);
+    }
+    public class S3Creator extends AsyncTask<String, Void, Boolean> {
+        Context context;
+        AWSS3Util awss3Util;
+        CognitoCachingCredentialsProvider credentialsProvider;
+
+        public S3Creator(Context context) {
+            this.context = context;
+            awss3Util = new AWSS3Util();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... url) {
+            credentialsProvider = new CognitoCachingCredentialsProvider(
+                    getApplicationContext(),
+                    "us-east-1:aa997b37-2281-45b2-a96f-fa40bf5d240b", // Identity Pool ID
+                    Regions.US_EAST_1 // Region
+            );
+            awss3Util.init(context,credentialsProvider);
+            return awss3Util.uploadToS3Bucket(imageFileName,imageFileObject);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isUploaded) {
+            super.onPostExecute(isUploaded);
+            if(isUploaded){
+                Toast.makeText(context,"Upload Successful to S3 Bucket",Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(context,"Image not Uploaded to S3 Bucket",Toast.LENGTH_LONG).show();
+            }
+            CompareFaces compareFaces = new CompareFaces(context,awss3Util,credentialsProvider);
+        }
     }
 
 }

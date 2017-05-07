@@ -12,6 +12,18 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -20,9 +32,10 @@ android {
     }
     productFlavors {
     }
+    //useLibrary 'org.apache.http.legacy'
 }
 
-buildscript {
+/*buildscript {
     repositories {
         mavenCentral()
     }
@@ -37,29 +50,39 @@ dependencyManagement {
     imports {
         mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.63'
     }
-}
+}*/
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:25.3.1'
-    compile 'com.google.android.gms:play-services-maps:10.2.1'
-    compile 'com.google.android.gms:play-services:10.2.1'
-    compile 'com.android.support:recyclerview-v7:25.1.1'
-    compile 'com.android.support:design:25.1.1'
-    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.google.android.gms:play-services-maps:10.2.4'
+    compile 'com.google.android.gms:play-services:10.2.4'
+    compile 'com.android.support:recyclerview-v7:25.3.1'
+    //compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.ibm.watson.developer_cloud:conversation:3.6.0'
     compile 'com.ibm.watson.developer_cloud:text-to-speech:3.6.0'
     compile 'com.ibm.watson.developer_cloud:speech-to-text:3.7.0'
     compile 'com.ibm.watson.developer_cloud:android-sdk:0.2.3'
     compile 'com.ibm.mobilefirstplatform.clientsdk.android:analytics:1.+'
-    compile 'com.squareup.okhttp3:okhttp:3.0.1'
-    compile 'com.facebook.android:facebook-android-sdk:4.10.0'
-    compile 'com.amazonaws:aws-java-sdk-s3'
-    compile 'com.amazonaws:aws-java-sdk-rekognition'
+    //compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    //compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    //compile 'com.squareup.okhttp3:okhttp-urlconnection:3.4.1'
+    //compile 'com.facebook.android:facebook-android-sdk:4.10.0'
+   // compile 'com.amazonaws:aws-java-sdk-s3'
+    //compile 'com.amazonaws:aws-java-sdk-rekognition'
+    //compile 'com.amazonaws:aws-android-sdk-core:2.3.9'
+    compile 'com.amazonaws:aws-android-sdk-rekognition:2.3.9'
+    compile 'com.amazonaws:aws-android-sdk-s3:2.3.9'
+    //compile 'com.amazonaws:aws-java-sdk-core:1.11.126'
+    compile 'com.amazonaws:aws-java-sdk:1.11.126'
+    compile 'com.amazonaws:aws-java-sdk-rekognition:1.11.126'
+    //compile 'com.amazonaws:aws-java-sdk-test-utils:1.11.126'
+    //compile 'com.amazonaws:jmespath-java:1.11.126'
+    //compile 'com.amazonaws:aws-java-sdk-s3:1.11.126'
     testCompile 'junit:junit:4.12'
 }
