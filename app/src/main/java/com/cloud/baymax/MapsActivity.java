@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -58,6 +59,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Double lastDistance = 0.0;
     private Double currentDistance = 0.0;
     private String destination;
+    private final AWSSNSUtil snsUtil;
+    private final CognitoCachingCredentialsProvider credentialsProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -358,7 +361,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                     // Vibrate for 2000 milliseconds
                     v.vibrate(2000);
+
                 }
+                snsUtil.init(credentialsProvider);
+                snsUtil.subscribeToTopic();
+                snsUtil.sendSMS();
 
 
             }
