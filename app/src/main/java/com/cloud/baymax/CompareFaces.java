@@ -84,7 +84,7 @@ public class CompareFaces {
                     .withSimilarityThreshold(similarityThreshold);
             return amazonRekognition.compareFaces(compareFacesRequest);
         }catch(Exception e){
-            Toast.makeText( applicationContext,"No detectable face in the uploaded picture !",Toast.LENGTH_LONG).show();
+            //Toast.makeText( applicationContext,"No detectable face in the uploaded picture !",Toast.LENGTH_LONG).show();
         }
         return null;
     }
@@ -135,19 +135,21 @@ public class CompareFaces {
             int index = 0;
 
             for(CompareFacesResult faceMatchResult : faceMatchResults){
-                List <CompareFacesMatch> faceDetails = faceMatchResult.getFaceMatches();
-                for (CompareFacesMatch match: faceDetails){
-                    ComparedFace face= match.getFace();
-                    BoundingBox position = face.getBoundingBox();
-                    Log.d("Face Result","Face at " + position.getLeft().toString()
-                            + " " + position.getTop()
-                            + " matches with " + face.getConfidence().toString()
-                            + "% confidence and has "+ match.getSimilarity() + " Similarity");
-                    if(match.getSimilarity() > maxSimilarity){
-                        indexWithMaxSimilarity = index;
-                        maxSimilarity = match.getSimilarity();
+                if(faceMatchResult != null) {
+                    List<CompareFacesMatch> faceDetails = faceMatchResult.getFaceMatches();
+                    for (CompareFacesMatch match : faceDetails) {
+                        ComparedFace face = match.getFace();
+                        BoundingBox position = face.getBoundingBox();
+                        Log.d("Face Result", "Face at " + position.getLeft().toString()
+                                + " " + position.getTop()
+                                + " matches with " + face.getConfidence().toString()
+                                + "% confidence and has " + match.getSimilarity() + " Similarity");
+                        if (match.getSimilarity() > maxSimilarity) {
+                            indexWithMaxSimilarity = index;
+                            maxSimilarity = match.getSimilarity();
+                        }
+                        index++;
                     }
-                    index++;
                 }
 
             }
@@ -155,13 +157,13 @@ public class CompareFaces {
             String detectedPerson = sourceKeys.get(indexWithMaxSimilarity);
             detectedPerson = detectedPerson.substring(0,detectedPerson.length()-4);
             TextToSpeechUtility textToSpeechUtility =new TextToSpeechUtility(applicationContext);
-            if(maxSimilarity >70 ) {
-                //Toast.makeText(context, "This is " + detectedPerson, Toast.LENGTH_LONG).show();
+            if(maxSimilarity >50 ) {
+                Toast.makeText(context, "This is " + detectedPerson, Toast.LENGTH_LONG).show();
                 Message message = new Message();
-                message.setMessage("The name of this person is"+detectedPerson);
+                message.setMessage("The name of this person is "+detectedPerson);
                 textToSpeechUtility.speakOutMessage(message);
             }else{
-                //Toast.makeText(context, "This person is not in the database", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "This person is not in the database", Toast.LENGTH_LONG).show();
                 Message message = new Message();
                 message.setMessage("This person is not in the database");
                 textToSpeechUtility.speakOutMessage(message);
