@@ -4,6 +4,9 @@ package com.cloud.baymax;
  * Created by Abhi on 5/10/2017.
  */
 
+import android.content.Context;
+import android.util.Log;
+
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.regions.Region;
@@ -15,20 +18,26 @@ import com.amazonaws.services.sns.model.PublishResult;
 public class AWSSNSUtil {
 
     AmazonSNSClient snsClient;
-    private static final String topicArn = "arn:aws:sns:us-east-1:069315280182:Location-warning";
-    private static final String message = "Tum rasta bhatak gye ho...";
+    private static final String topicArn = "arn:aws:sns:us-east-1:084177367647:Way_Lost";
+    private static final String message = "ALERT : You have wandered away from your destination !";
 
-    public void init(CognitoCachingCredentialsProvider credentialsProvider) {
-        snsClient = new AmazonSNSClient(credentialsProvider.getCredentials());
-        snsClient.setRegion(Region.getRegion(Regions.US_EAST_1));
+    public void init(Context applicationContext) {
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                applicationContext,
+                "us-east-1:aa997b37-2281-45b2-a96f-fa40bf5d240b", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+        snsClient = new AmazonSNSClient(credentialsProvider);
+        //snsClient.setRegion(Region.getRegion(Regions.US_EAST_1));
     }
 
     public void subscribeToTopic(){
-        SubscribeRequest subRequest = new SubscribeRequest(topicArn, "sms", "19172831618");
+        //SubscribeRequest subRequest = new SubscribeRequest(topicArn, "sms", "19172831618");
+        SubscribeRequest subRequest = new SubscribeRequest(topicArn, "sms", "+16463095628");
         snsClient.subscribe(subRequest);
 
         //get request id for SubscribeRequest from SNS metadata
-        System.out.println("SubscribeRequest - " + snsClient.getCachedResponseMetadata(subRequest));
+        Log.d("SNSLog","SubscribeRequest - " + snsClient.getCachedResponseMetadata(subRequest));
     }
 
     public void sendSMS(){
@@ -36,6 +45,6 @@ public class AWSSNSUtil {
         PublishResult publishResult = snsClient.publish(publishRequest);
 
         //print MessageId of message published to SNS topic
-        System.out.println("MessageId - " + publishResult.getMessageId());
+        Log.d("SNSLog","MessageId - " + publishResult.getMessageId());
     }
 }

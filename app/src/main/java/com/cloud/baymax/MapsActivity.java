@@ -59,8 +59,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Double lastDistance = 0.0;
     private Double currentDistance = 0.0;
     private String destination;
-    private final AWSSNSUtil snsUtil;
-    private final CognitoCachingCredentialsProvider credentialsProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -359,13 +357,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("Distance", "Going Wrong Way");
                     Toast.makeText(getApplicationContext(),"Going Wrong Way",Toast.LENGTH_LONG).show();
                     Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                    SNSCallerTask snsCallerTask = new SNSCallerTask();
+                    snsCallerTask.execute();
+                    Log.d("SNSLog","Notification has been sent by SNS");
                     // Vibrate for 2000 milliseconds
                     v.vibrate(2000);
 
                 }
-                snsUtil.init(credentialsProvider);
-                snsUtil.subscribeToTopic();
-                snsUtil.sendSMS();
+
 
 
             }
@@ -373,6 +372,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Drawing polyline in the Google Map for the i-th route
             if(lineOptions != null) {
                 mMap.addPolyline(lineOptions);
+
+                //Adding destination marker
+                LatLng origin = new LatLng(allPoints.get(allPoints.size()-1).latitude, allPoints.get(allPoints.size()-1).longitude);
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(origin);
+                markerOptions.title("Destination");
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                mCurrLocationMarker = mMap.addMarker(markerOptions);
 
                 /*for(LatLng point : allPoints) {
                     // Creating MarkerOptions
@@ -388,6 +395,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             else {
                 Log.d("onPostExecute","without Polylines drawn");
             }
+        }
+    }
+
+    private class SNSCallerTask extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            AWSSNSUtil snsUtil = new AWSSNSUtil();
+            snsUtil.init(getApplicationContext());
+            snsUtil.subscribeToTopic();
+            snsUtil.sendSMS();
+            return null;
         }
     }
 
@@ -433,7 +452,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(origin);
         markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         mCurrLocationMarker = mMap.addMarker(markerOptions);
 
         //move map camera

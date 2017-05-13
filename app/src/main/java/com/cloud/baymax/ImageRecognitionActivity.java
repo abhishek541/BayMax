@@ -214,9 +214,9 @@ public class ImageRecognitionActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean isUploaded) {
             super.onPostExecute(isUploaded);
             if(isUploaded){
-                Toast.makeText(context,"Upload Successful to S3 Bucket",Toast.LENGTH_LONG).show();
+                Toast.makeText(context,"Photo Upload Successful ! Kindly Wait for response from server... ",Toast.LENGTH_LONG).show();
             }else{
-                Toast.makeText(context,"Image not Uploaded to S3 Bucket",Toast.LENGTH_LONG).show();
+                Toast.makeText(context,"Image not Uploaded due to S3 Storage Service unavailability.Please try again after some time.",Toast.LENGTH_LONG).show();
             }
             CompareFaces compareFaces = new CompareFaces(context,awss3Util,credentialsProvider);
         }

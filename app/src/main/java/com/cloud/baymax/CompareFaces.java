@@ -163,9 +163,9 @@ public class CompareFaces {
                 message.setMessage("The name of this person is "+detectedPerson);
                 textToSpeechUtility.speakOutMessage(message);
             }else{
-                Toast.makeText(context, "This person is not in the database", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "Person not recognized", Toast.LENGTH_LONG).show();
                 Message message = new Message();
-                message.setMessage("This person is not in the database");
+                message.setMessage("Sorry I can't recognize this person. Kindly ensure the face is clearly visible in the captured photo.");
                 textToSpeechUtility.speakOutMessage(message);
             }
 
